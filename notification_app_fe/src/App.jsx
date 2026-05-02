@@ -1,5 +1,6 @@
 import React from 'react'
 import Log from "../src/utils/logger";
+import Dashboard from './pages/Dashboard';
 
 
 const App = () => {
@@ -18,7 +19,7 @@ const testLogger = async () => {
 testLogger();
   return (
     <div>
-      Hello
+      <Dashboard />
     </div>
   )
 }
