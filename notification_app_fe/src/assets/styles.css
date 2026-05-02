@@ -230,6 +230,13 @@ body {
   font-weight: bold;
 }
 
+.search {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d2a679;
+  margin-bottom: 10px;
+}
 
 @media (max-width: 600px) {
   .container {

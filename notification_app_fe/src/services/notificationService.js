@@ -1,16 +1,18 @@
 import apiClient from "./apiClient";
 import Log from "../utils/logger";
 
-export const fetchNotifications = async (page = 1) => {
+export const fetchNotifications = async (params = {}) => {
   try {
     await Log(
       "frontend",
       "info",
       "api",
-      `Fetching notifications page ${page}`
+      `Fetching notifications with params ${JSON.stringify(params)}`
     );
 
-    const res = await apiClient.get(`/notifications?page=${page}`);
+    const res = await apiClient.get("/notifications", {
+      params,
+    });
 
     await Log(
       "frontend",
@@ -19,21 +21,21 @@ export const fetchNotifications = async (page = 1) => {
       "Notifications fetched successfully"
     );
 
+    // 🔥 normalize
     return (res.data.notifications || []).map((n) => ({
-        id: n.id || n.ID,
-        type: n.type || n.Type,
-        message: n.message || n.Message,
-        timestamp: n.timestamp || n.Timestamp,
+      id: n.ID,
+      type: n.Type,
+      message: n.Message,
+      timestamp: n.Timestamp,
     }));
   } catch (err) {
     await Log(
       "frontend",
       "error",
       "api",
-      `Failed to fetch notifications: ${err.message}`
+      `Fetch failed: ${err.message}`
     );
 
-    console.error("API Error:", err.message);
     return [];
   }
 };

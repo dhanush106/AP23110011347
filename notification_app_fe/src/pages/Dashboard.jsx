@@ -1,59 +1,63 @@
 import useNotifications from "../hooks/useNotifications";
 import NotificationCard from "../components/NotificationCard";
 import Pagination from "../components/Pagination";
-import Log from "../utils/logger";
 import PrioritySelector from "../components/PrioritySelector";
-import "../assets/styles.css";
+import SearchBar from "../components/SearchBar";
+import FilterBar from "../components/FilterBar";
+import Log from "../utils/logger";
+import '../assets/styles.css';
 
 function Dashboard() {
   const {
-    notifications,
+    filtered,
     priorityNotifications,
     page,
     setPage,
     view,
     setView,
+    search,
+    setSearch,
+    type,
+    setType,
     limit,
     setLimit,
   } = useNotifications();
 
-  const currentData = view === "all" ? notifications : priorityNotifications;
+  const currentData = view === "all" ? filtered : priorityNotifications;
 
-  const handleViewChange = (type) => {
-    setView(type);
-    Log("frontend", "info", "component", `Switched to ${type}`);
+  const handleViewChange = (v) => {
+    setView(v);
+    Log("frontend", "info", "component", `View changed to ${v}`);
   };
 
   return (
     <div className="container">
-      <h1 className="title">Notifications</h1>
+      <h1 className="title">📩 Notifications</h1>
 
+      {/* Tabs */}
       <div className="tabs">
-        {view === "priority" && (
-            <PrioritySelector limit={limit} setLimit={setLimit} />
-        )}
-        <button
-          className={view === "all" ? "active" : ""}
-          onClick={() => handleViewChange("all")}
-        >
-          All
-        </button>
-
-        <button
-          className={view === "priority" ? "active" : ""}
-          onClick={() => handleViewChange("priority")}
-        >
+        <button onClick={() => handleViewChange("all")}>All</button>
+        <button onClick={() => handleViewChange("priority")}>
           Priority
         </button>
       </div>
 
+      {/* 🔥 Controls */}
+      <SearchBar search={search} setSearch={setSearch} />
+      <FilterBar type={type} setType={setType} />
+
+      {view === "priority" && (
+        <PrioritySelector limit={limit} setLimit={setLimit} />
+      )}
+
+      {/* Cards */}
       <div className="grid">
         {currentData.map((n) => (
           <NotificationCard key={n.id} data={n} />
         ))}
       </div>
 
-      {/* 🔥 Pagination UI */}
+      {/* Pagination */}
       {view === "all" && (
         <Pagination page={page} setPage={setPage} />
       )}
