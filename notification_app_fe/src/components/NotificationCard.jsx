@@ -4,22 +4,33 @@ function NotificationCard({ data }) {
   const formatDate = (timestamp) => {
     if (!timestamp) return "No date";
 
-    const fixed = timestamp.replace(" ", "T");
-    const date = new Date(fixed);
+    try {
+      const fixed = String(timestamp).replace(" ", "T");
+      const date = new Date(fixed);
 
-    if (isNaN(date)) return "Invalid date";
+      if (isNaN(date.getTime())) return "Invalid date";
 
-    return date.toLocaleString();
+      return date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (e) {
+      return "Invalid date";
+    }
   };
 
+  const typeClass = data.type ? data.type.toLowerCase() : "unknown";
+
   return (
-    <div className={`card ${data.type.toLowerCase()}`}>
+    <div className={`card ${typeClass}`}>
       <div className="card-header">
-        <span className="badge">{data.type}</span>
+        <span className="badge">{data.type || "Unknown"}</span>
         <span className="time">{formatDate(data.timestamp)}</span>
       </div>
-
-      <p className="message">{data.message}</p>
+      <p className="message">{data.message || "No message"}</p>
     </div>
   );
 }

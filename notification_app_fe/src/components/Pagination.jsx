@@ -1,28 +1,26 @@
 import Log from "../utils/logger";
 
 function Pagination({ page, setPage }) {
-  const handleNext = () => {
-    setPage(page + 1);
-    Log("frontend", "info", "component", "Next page clicked");
+  const handlePrev = () => {
+    setPage(page - 1);
+    Log("frontend", "info", "component", `Navigated to page ${page - 1}`);
   };
 
-  const handlePrev = () => {
-    if (page > 1) {
-      setPage(page - 1);
-      Log("frontend", "info", "component", "Previous page clicked");
-    }
+  const handleNext = () => {
+    setPage(page + 1);
+    Log("frontend", "info", "component", `Navigated to page ${page + 1}`);
   };
 
   return (
     <div className="pagination">
-      <button onClick={handlePrev} disabled={page === 1}>
-        ⬅ Prev
+      <button disabled={page === 1} onClick={handlePrev}>
+        Previous
       </button>
 
-      <span>Page {page}</span>
+      <span className="page-number">Page {page}</span>
 
       <button onClick={handleNext}>
-        Next ➡
+        Next
       </button>
     </div>
   );

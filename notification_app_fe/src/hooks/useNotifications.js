@@ -1,32 +1,49 @@
-import { useEffect, useState } from "react";
-import { fetchNotifications } from "../services/notificationService";
+import { useEffect, useState, useCallback } from "react";
+import {
+  fetchNotifications,
+  fetchAllNotifications,
+} from "../services/notificationService";
 import Log from "../utils/logger";
 
 const useNotifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [page, setPage] = useState(1);
   const [view, setView] = useState("all");
 
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [type, setType] = useState("all");
   const [limit, setLimit] = useState(15);
 
-  // 🔥 FETCH DATA
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
   useEffect(() => {
     const load = async () => {
-      const data = await fetchNotifications({ page });
+      setLoading(true);
+      let data;
+
+      if (debouncedSearch) {
+        data = await fetchAllNotifications();
+      } else {
+        data = await fetchNotifications(page);
+      }
 
       setNotifications(data);
-
-      await Log("frontend", "debug", "state", "Data fetched");
+      setLoading(false);
     };
 
     load();
-  }, [page]);
+  }, [page, debouncedSearch]);
 
-  // 🔥 FILTER + SEARCH
   useEffect(() => {
     let result = [...notifications];
 
@@ -34,24 +51,22 @@ const useNotifications = () => {
       result = result.filter((n) => n.type === type);
     }
 
-    if (search) {
+    if (debouncedSearch) {
       result = result.filter((n) =>
-        n.message.toLowerCase().includes(search.toLowerCase())
+        n.message.toLowerCase().includes(debouncedSearch.toLowerCase())
       );
     }
 
-    // 🔥 sort latest
     result.sort(
       (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
     );
 
     setFiltered(result);
+  }, [notifications, debouncedSearch, type]);
 
-    Log("frontend", "debug", "state", "Filtering applied");
-  }, [notifications, search, type]);
-
-  // 🔥 PRIORITY
-  const priorityNotifications = filtered.slice(0, limit);
+  const priorityNotifications = [...filtered]
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, limit);
 
   return {
     filtered,
@@ -66,6 +81,7 @@ const useNotifications = () => {
     setType,
     limit,
     setLimit,
+    loading,
   };
 };
 
